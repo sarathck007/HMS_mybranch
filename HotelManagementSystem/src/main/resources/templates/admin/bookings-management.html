@@ -1,0 +1,667 @@
+<!-- templates/admin/bookings-management.html (Completed) -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/layout :: head('Bookings Management')">
+</head>
+<body>
+    <header th:replace="fragments/layout :: header-admin"></header>
+    
+    <div class="container-fluid py-4">
+        <h1 class="h3 mb-4 text-gray-800">Bookings Management</h1>
+        
+        <!-- Filter Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a th:href="@{/admin/bookings}" class="text-decoration-none">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="font-weight-bold text-primary text-uppercase mb-1">
+                                        All Bookings</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalBookings ?: 0}">215</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a th:href="@{/admin/bookings/status/pending}" class="text-decoration-none">
+                    <div class="card border-left-warning shadow h-100 py-2" th:classappend="${currentStatus == 'pending' ? 'bg-light' : ''}">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="font-weight-bold text-warning text-uppercase mb-1">
+                                        Pending</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${pendingCount ?: 0}">18</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a th:href="@{/admin/bookings/status/confirmed}" class="text-decoration-none">
+                    <div class="card border-left-success shadow h-100 py-2" th:classappend="${currentStatus == 'confirmed' ? 'bg-light' : ''}">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="font-weight-bold text-success text-uppercase mb-1">
+                                        Confirmed</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${confirmedCount ?: 0}">110</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a th:href="@{/admin/bookings/status/cancelled}" class="text-decoration-none">
+                    <div class="card border-left-danger shadow h-100 py-2" th:classappend="${currentStatus == 'cancelled' ? 'bg-light' : ''}">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="font-weight-bold text-danger text-uppercase mb-1">
+                                        Cancelled</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${cancelledCount ?: 0}">15</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Advanced Search -->
+        <div class="card shadow mb-4">
+            <a href="#collapseAdvancedSearch" class="d-block card-header py-3" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseAdvancedSearch">
+                <h6 class="m-0 font-weight-bold text-primary">Advanced Search</h6>
+            </a>
+            <div class="collapse" id="collapseAdvancedSearch">
+                <div class="card-body">
+                    <form id="advancedSearchForm">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="bookingId" class="form-label">Booking ID</label>
+                                <input type="text" class="form-control" id="bookingId" name="bookingId" placeholder="BK12345">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="guestName" class="form-label">Guest Name</label>
+                                <input type="text" class="form-control" id="guestName" name="guestName" placeholder="John Doe">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="roomId" class="form-label">Room ID</label>
+                                <input type="text" class="form-control" id="roomId" name="roomId" placeholder="RM1">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="searchStatus" class="form-label">Status</label>
+                                <select class="form-select" id="searchStatus" name="status">
+                                    <option value="">All</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="CONFIRMED">Confirmed</option>
+                                    <option value="CHECKED_IN">Checked In</option>
+                                    <option value="CHECKED_OUT">Checked Out</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-3">
+                                <label for="checkInFrom" class="form-label">Check-in From</label>
+                                <input type="date" class="form-control" id="checkInFrom" name="checkInFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="checkInTo" class="form-label">Check-in To</label>
+                                <input type="date" class="form-control" id="checkInTo" name="checkInTo">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="checkOutFrom" class="form-label">Check-out From</label>
+                                <input type="date" class="form-control" id="checkOutFrom" name="checkOutFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="checkOutTo" class="form-label">Check-out To</label>
+                                <input type="date" class="form-control" id="checkOutTo" name="checkOutTo">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="reset" class="btn btn-secondary me-2">Reset</button>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bookings Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">All Bookings</h6>
+                <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV()">Export to CSV</button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="bookingsTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Guest</th>
+                                <th>Room</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Guests</th>
+                                <th>Total Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="booking : ${bookings}">
+                                <td th:text="${booking.bookingId}">BK12345</td>
+                                <td th:text="${booking.userName}">John Doe</td>
+                                <td th:text="${booking.roomName}">Deluxe Suite</td>
+                                <td th:text="${#temporals.format(booking.checkInDate, 'MMM dd, yyyy')}">Apr 25, 2024</td>
+                                <td th:text="${#temporals.format(booking.checkOutDate, 'MMM dd, yyyy')}">Apr 30, 2024</td>
+                                <td th:text="${booking.guests}">2</td>
+                                <td th:text="${'$' + booking.totalPrice}">$1,250</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${booking.status == 'CONFIRMED' ? 'bg-success' : 
+                                                        (booking.status == 'CANCELLED' ? 'bg-danger' : 
+                                                        (booking.status == 'CHECKED_IN' ? 'bg-primary' : 
+                                                        (booking.status == 'CHECKED_OUT' ? 'bg-secondary' : 'bg-warning')))}"
+                                          th:text="${booking.status}">CONFIRMED</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-booking-btn"
+                                            th:data-booking-id="${booking.bookingId}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-cog"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li th:if="${booking.status == 'PENDING'}">
+                                                <a class="dropdown-item confirm-booking-btn" href="#" 
+                                                   th:data-booking-id="${booking.bookingId}">
+                                                    <i class="fas fa-check text-success me-2"></i> Confirm
+                                                </a>
+                                            </li>
+                                            <li th:if="${booking.status == 'CONFIRMED'}">
+                                                <a class="dropdown-item checkin-booking-btn" href="#" 
+                                                   th:data-booking-id="${booking.bookingId}">
+                                                    <i class="fas fa-sign-in-alt text-primary me-2"></i> Check In
+                                                </a>
+                                            </li>
+                                            <li th:if="${booking.status == 'CHECKED_IN'}">
+                                                <a class="dropdown-item checkout-booking-btn" href="#" 
+                                                   th:data-booking-id="${booking.bookingId}">
+                                                    <i class="fas fa-sign-out-alt text-secondary me-2"></i> Check Out
+                                                </a>
+                                            </li>
+                                            <li th:if="${booking.status != 'CANCELLED' && booking.status != 'CHECKED_OUT'}">
+                                                <a class="dropdown-item cancel-booking-btn" href="#" 
+                                                   th:data-booking-id="${booking.bookingId}">
+                                                    <i class="fas fa-times text-danger me-2"></i> Cancel
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item edit-booking-btn" href="#" 
+                                                   th:data-booking-id="${booking.bookingId}">
+                                                    <i class="fas fa-edit text-warning me-2"></i> Edit
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${bookings == null || bookings.empty}">
+                                <td colspan="9" class="text-center">No bookings found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item" th:classappend="${currentPage == 1 ? 'disabled' : ''}">
+                                <a class="page-link" th:href="@{${currentUrl}(page=${currentPage - 1})}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" 
+                                th:classappend="${i == currentPage ? 'active' : ''}">
+                                <a class="page-link" th:href="@{${currentUrl}(page=${i})}" th:text="${i}">1</a>
+                            </li>
+                            <li class="page-item" th:classappend="${currentPage == totalPages ? 'disabled' : ''}">
+                                <a class="page-link" th:href="@{${currentUrl}(page=${currentPage + 1})}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Booking Modal -->
+    <div class="modal fade" id="viewBookingModal" tabindex="-1" aria-labelledby="viewBookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewBookingModalLabel">Booking Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="bookingDetails">
+                        <!-- Content will be loaded dynamically -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading booking details...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Booking Modal -->
+    <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBookingModalLabel">Edit Booking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editBookingForm">
+                        <input type="hidden" id="editBookingId" name="bookingId">
+                        <div class="mb-3">
+                            <label for="editCheckIn" class="form-label">Check-in Date</label>
+                            <input type="date" class="form-control" id="editCheckIn" name="checkInDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCheckOut" class="form-label">Check-out Date</label>
+                            <input type="date" class="form-control" id="editCheckOut" name="checkOutDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGuests" class="form-label">Number of Guests</label>
+                            <input type="number" class="form-control" id="editGuests" name="guests" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatus" class="form-label">Status</label>
+                            <select class="form-select" id="editStatus" name="status" required>
+                                <option value="PENDING">Pending</option>
+                                <option value="CONFIRMED">Confirmed</option>
+                                <option value="CHECKED_IN">Checked In</option>
+                                <option value="CHECKED_OUT">Checked Out</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateBookingBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/layout :: footer"></footer>
+    
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // View Booking Button
+            const viewBookingButtons = document.querySelectorAll('.view-booking-btn');
+            viewBookingButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookingId = this.getAttribute('data-booking-id');
+                    
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('viewBookingModal'));
+                    modal.show();
+                    
+                    // Fetch booking details
+                    fetch(`/api/admin/bookings/${bookingId}`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            const booking = result.data;
+                            
+                            // Format dates
+                            const checkInDate = new Date(booking.checkInDate).toLocaleDateString('en-US', {
+                                year: 'numeric', month: 'long', day: 'numeric'
+                            });
+                            const checkOutDate = new Date(booking.checkOutDate).toLocaleDateString('en-US', {
+                                year: 'numeric', month: 'long', day: 'numeric'
+                            });
+                            
+                            // Build HTML for booking details
+                            const detailsHtml = `
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="font-weight-bold">Booking ID:</h6>
+                                        <p>${booking.bookingId}</p>
+                                        
+                                        <h6 class="font-weight-bold">Guest:</h6>
+                                        <p>${booking.userName}</p>
+                                        
+                                        <h6 class="font-weight-bold">Room:</h6>
+                                        <p>${booking.roomName}</p>
+                                        
+                                        <h6 class="font-weight-bold">Status:</h6>
+                                        <p><span class="badge ${
+                                            booking.status === 'CONFIRMED' ? 'bg-success' : 
+                                            booking.status === 'CANCELLED' ? 'bg-danger' : 
+                                            booking.status === 'CHECKED_IN' ? 'bg-primary' : 
+                                            booking.status === 'CHECKED_OUT' ? 'bg-secondary' : 'bg-warning'
+                                        }">${booking.status}</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="font-weight-bold">Check-in Date:</h6>
+                                        <p>${checkInDate}</p>
+                                        
+                                        <h6 class="font-weight-bold">Check-out Date:</h6>
+                                        <p>${checkOutDate}</p>
+                                        
+                                        <h6 class="font-weight-bold">Guests:</h6>
+                                        <p>${booking.guests}</p>
+                                        
+                                        <h6 class="font-weight-bold">Total Price:</h6>
+                                        <p>$${booking.totalPrice}</p>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Update the modal content
+                            document.getElementById('bookingDetails').innerHTML = detailsHtml;
+                        } else {
+                            document.getElementById('bookingDetails').innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Failed to load booking details.
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('bookingDetails').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                An error occurred while loading booking details.
+                            </div>
+                        `;
+                    });
+                });
+            });
+            
+            // Edit Booking Button
+            const editBookingButtons = document.querySelectorAll('.edit-booking-btn');
+            const updateBookingBtn = document.getElementById('updateBookingBtn');
+            const editBookingForm = document.getElementById('editBookingForm');
+            
+            editBookingButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const bookingId = this.getAttribute('data-booking-id');
+                    
+                    // Fetch booking details to pre-fill the form
+                    fetch(`/api/admin/bookings/${bookingId}`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            const booking = result.data;
+                            
+                            // Format dates for the form (YYYY-MM-DD)
+                            const checkInDate = new Date(booking.checkInDate).toISOString().split('T')[0];
+                            const checkOutDate = new Date(booking.checkOutDate).toISOString().split('T')[0];
+                            
+                            // Pre-fill the form
+                            document.getElementById('editBookingId').value = booking.bookingId;
+                            document.getElementById('editCheckIn').value = checkInDate;
+                            document.getElementById('editCheckOut').value = checkOutDate;
+                            document.getElementById('editGuests').value = booking.guests;
+                            document.getElementById('editStatus').value = booking.status;
+                            
+                            // Show the modal
+                            const modal = new bootstrap.Modal(document.getElementById('editBookingModal'));
+                            modal.show();
+                        } else {
+                            alert('Failed to load booking details.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while loading booking details.');
+                    });
+                });
+            });
+            
+            // Update Booking Form Submit
+            updateBookingBtn.addEventListener('click', function() {
+                if (editBookingForm.checkValidity()) {
+                    const bookingId = document.getElementById('editBookingId').value;
+                    const formData = new FormData(editBookingForm);
+                    const bookingData = {};
+                    
+                    formData.forEach((value, key) => {
+                        bookingData[key] = value;
+                    });
+                    
+                    // Add time to dates (T12:00:00)
+                    bookingData.checkInDate = bookingData.checkInDate + 'T12:00:00';
+                    bookingData.checkOutDate = bookingData.checkOutDate + 'T12:00:00';
+                    
+                    // Send update request
+                    fetch(`/api/admin/bookings/${bookingId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        body: JSON.stringify(bookingData)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // Close modal and reload page
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('editBookingModal'));
+                            modal.hide();
+                            window.location.reload();
+                        } else {
+                            alert(result.message || 'Failed to update booking.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating the booking.');
+                    });
+                } else {
+                    editBookingForm.reportValidity();
+                }
+            });
+            
+            // Status Change Buttons
+            const confirmButtons = document.querySelectorAll('.confirm-booking-btn');
+            const checkinButtons = document.querySelectorAll('.checkin-booking-btn');
+            const checkoutButtons = document.querySelectorAll('.checkout-booking-btn');
+            const cancelButtons = document.querySelectorAll('.cancel-booking-btn');
+            
+            confirmButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    updateBookingStatus(this.getAttribute('data-booking-id'), 'CONFIRMED');
+                });
+            });
+            
+            checkinButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    updateBookingStatus(this.getAttribute('data-booking-id'), 'CHECKED_IN');
+                });
+            });
+            
+            checkoutButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    updateBookingStatus(this.getAttribute('data-booking-id'), 'CHECKED_OUT');
+                });
+            });
+            
+            cancelButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to cancel this booking?')) {
+                        updateBookingStatus(this.getAttribute('data-booking-id'), 'CANCELLED');
+                    }
+                });
+            });
+            
+            function updateBookingStatus(bookingId, status) {
+                fetch(`/api/admin/bookings/${bookingId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({ status: status })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        window.location.reload();
+                    } else {
+                        alert(result.message || 'Failed to update booking status.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the booking status.');
+                });
+            }
+            
+            // Advanced Search Form
+            const advancedSearchForm = document.getElementById('advancedSearchForm');
+            
+            advancedSearchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(advancedSearchForm);
+                const searchParams = new URLSearchParams();
+                
+                // Add all non-empty form fields to search params
+                formData.forEach((value, key) => {
+                    if (value) {
+                        searchParams.append(key, value);
+                    }
+                });
+                
+                // Redirect with search params
+                window.location.href = `/admin/bookings/search?${searchParams.toString()}`;
+            });
+            
+            // Export to CSV
+            window.exportToCSV = function() {
+                const table = document.getElementById('bookingsTable');
+                const rows = table.querySelectorAll('tbody tr');
+                
+                // Check if there are any bookings
+                if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) {
+                    alert('No data to export.');
+                    return;
+                }
+                
+                // Get headers
+                const headers = [];
+                table.querySelectorAll('thead th').forEach(th => {
+                    headers.push(`"${th.textContent.trim()}"`);
+                });
+                
+                // Get data rows
+                const csvRows = [];
+                csvRows.push(headers.join(','));
+                
+                rows.forEach(row => {
+                    // Skip 'No bookings found' row
+                    if (row.cells.length === 1) return;
+                    
+                    const rowData = [];
+                    row.querySelectorAll('td').forEach((cell, index) => {
+                    // Skip 'Actions' column (last column)
+                    if (index < row.cells.length - 1) {
+                        let cellText = cell.textContent.trim();
+                        
+                        // Handle cells with badge elements (status column)
+                        if (cell.querySelector('.badge')) {
+                            cellText = cell.querySelector('.badge').textContent.trim();
+                        }
+                        
+                        // Escape quotes in text
+                        cellText = cellText.replace(/"/g, '""');
+                        rowData.push(`"${cellText}"`);
+                    }
+                });
+                
+                csvRows.push(rowData.join(','));
+            });
+            
+            // Create and download CSV file
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            // Create filename with date
+            const date = new Date().toISOString().substring(0, 10);
+            const filename = `bookings_export_${date}.csv`;
+            
+            // Download file
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, filename);
+            } else {
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        };
+        });
+    </script>
+</body>
+</html>

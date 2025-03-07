@@ -1,0 +1,189 @@
+<!-- templates/user/booking-form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Book Room')">
+</head>
+<body>
+    <header th:replace="fragments/layout :: header-user"></header>
+
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Booking Confirmation</h6>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/api/bookings}" method="post" id="bookingForm">
+                            <!-- Hidden fields for booking data -->
+                            <input type="hidden" name="roomId" th:value="${room.roomId}">
+                            <input type="hidden" name="checkInDate" th:value="${checkIn + 'T12:00:00'}">
+                            <input type="hidden" name="checkOutDate" th:value="${checkOut + 'T12:00:00'}">
+                            <input type="hidden" name="guests" th:value="${adults + children}">
+                            
+                            <div class="mb-4">
+                                <h5>Stay Details</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Check-in Date</label>
+                                        <p class="form-control-static" th:text="${checkIn}">2024-06-01</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Check-out Date</label>
+                                        <p class="form-control-static" th:text="${checkOut}">2024-06-05</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Adults</label>
+                                        <p class="form-control-static" th:text="${adults}">2</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Children</label>
+                                        <p class="form-control-static" th:text="${children}">1</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label class="form-label">Total Nights</label>
+                                        <p class="form-control-static" th:text="${totalNights}">4</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>Guest Information</h5>
+                                <div class="mb-3">
+                                    <label for="specialRequests" class="form-label">Special Requests</label>
+                                    <textarea class="form-control" id="specialRequests" name="specialRequests" rows="3" 
+                                              placeholder="Add any special requests or requirements..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>Billing Information</h5>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i> Your card will not be charged until check-in. You can cancel for free up to 24 hours before check-in.
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cardName" class="form-label">Name on Card</label>
+                                    <input type="text" class="form-control" id="cardName" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cardNumber" class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" id="cardNumber" required>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="cardExpiry" class="form-label">Expiry</label>
+                                        <input type="text" class="form-control" id="cardExpiry" placeholder="MM/YY" required>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="cardCvv" class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cardCvv" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                <label class="form-check-label" for="termsCheck">
+                                    I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Cancellation Policy</a>
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">Confirm Booking</button>
+                                <a th:href="@{/user/rooms}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Room Summary -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Room Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <img th:src="@{/images/Room1.jpg}" alt="Room" class="img-fluid rounded mb-3">
+                            <h5 th:text="${room.roomName}">Deluxe Suite</h5>
+                            <p class="mb-0" th:text="${room.features}">King Bed, City View, Free Wi-Fi</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Price Summary -->
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Price Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Room Rate</span>
+                            <span th:text="${'$' + (room.discountedPrice != null ? room.discountedPrice : room.actualPrice) + ' x ' + totalNights + ' nights'}">
+                                $180 x 4 nights
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Taxes & Fees</span>
+                            <span th:text="${'$' + taxesAndFees}">$72</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold">Total</span>
+                            <span class="fw-bold" th:text="${'$' + totalPrice}">$792</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/layout :: footer"></footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle form submission via fetch API
+            const bookingForm = document.getElementById('bookingForm');
+            
+            bookingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const formData = new FormData(bookingForm);
+                const bookingData = {};
+                formData.forEach((value, key) => bookingData[key] = value);
+                
+                // Send request
+                fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify(bookingData)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // Show success message and redirect
+                        alert('Booking confirmed successfully!');
+                        window.location.href = '/user/bookings';
+                    } else {
+                        // Show error message
+                        alert(result.message || 'Failed to complete booking. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing your booking. Please try again later.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!-- templates/user/rooms.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Find Rooms')">
+</head>
+<body>
+    <header th:replace="fragments/layout :: header-user"></header>
+
+    <div class="container py-5">
+        <h1 class="mb-4">Find Your Perfect Room</h1>
+
+        <!-- Search Form -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form th:action="@{/user/rooms/search}" method="get" class="search-form">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="checkIn" class="form-label">Check-in Date</label>
+                            <input type="date" class="form-control" id="checkIn" name="checkIn" 
+                                   th:value="${checkIn}" required min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="checkOut" class="form-label">Check-out Date</label>
+                            <input type="date" class="form-control" id="checkOut" name="checkOut" 
+                                   th:value="${checkOut}" required min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="adults" class="form-label">Adults</label>
+                            <select class="form-select" id="adults" name="adults" required>
+                                <option value="1" th:selected="${adults == 1}">1</option>
+                                <option value="2" th:selected="${adults == 2}">2</option>
+                                <option value="3" th:selected="${adults == 3}">3</option>
+                                <option value="4" th:selected="${adults == 4}">4</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="children" class="form-label">Children</label>
+                            <select class="form-select" id="children" name="children">
+                                <option value="0" th:selected="${children == 0}">0</option>
+                                <option value="1" th:selected="${children == 1}">1</option>
+                                <option value="2" th:selected="${children == 2}">2</option>
+                                <option value="3" th:selected="${children == 3}">3</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Filter Options -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card shadow h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Filters</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/user/rooms/search}" method="get" id="filterForm">
+                            <!-- Keep search params -->
+                            <input type="hidden" name="checkIn" th:value="${checkIn}">
+                            <input type="hidden" name="checkOut" th:value="${checkOut}">
+                            <input type="hidden" name="adults" th:value="${adults}">
+                            <input type="hidden" name="children" th:value="${children}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Price Range</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" class="form-control form-control-sm me-2" placeholder="Min" name="minPrice">
+                                    <span>-</span>
+                                    <input type="number" class="form-control form-control-sm ms-2" placeholder="Max" name="maxPrice">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Room Features</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="Wi-Fi" id="featureWifi" name="features">
+                                    <label class="form-check-label" for="featureWifi">Wi-Fi</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="Balcony" id="featureBalcony" name="features">
+                                    <label class="form-check-label" for="featureBalcony">Balcony</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="Kitchen" id="featureKitchen" name="features">
+                                    <label class="form-check-label" for="featureKitchen">Kitchen</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="TV" id="featureTV" name="features">
+                                    <label class="form-check-label" for="featureTV">
+                                     <label class="form-check-label" for="featureTV">TV</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="Air Conditioning" id="featureAC" name="features">
+                                    <label class="form-check-label" for="featureAC">Air Conditioning</label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Room Results -->
+            <div class="col-md-9">
+                <!-- No rooms found message -->
+                <div th:if="${rooms == null || rooms.empty}" class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> No rooms available for your search criteria. Please try different dates or filters.
+                </div>
+                
+                <!-- Room cards -->
+                <div th:if="${rooms != null && !rooms.empty}">
+                    <div class="card shadow mb-3" th:each="room : ${rooms}">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img th:src="@{/images/Room1.jpg}" alt="Room" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="card-title" th:text="${room.roomName}">Deluxe Suite</h5>
+                                        <div>
+                                            <span class="badge bg-success me-2" th:if="${room.discountedPrice != null}">Special Offer</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="card-text" th:text="${room.features}">Features</p>
+                                    
+                                    <div class="d-flex gap-3 mb-3">
+                                        <div>
+                                            <i class="fas fa-user me-1"></i> <span th:text="${room.maxAdults + ' Adults'}">2 Adults</span>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-child me-1"></i> <span th:text="${room.maxChildren + ' Children'}">1 Child</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="mb-0">
+                                                <span class="text-decoration-line-through" th:if="${room.discountedPrice != null}" 
+                                                      th:text="${'$' + room.actualPrice + '/night'}">$200/night</span>
+                                                <span class="fs-5 fw-bold" 
+                                                      th:text="${'$' + (room.discountedPrice != null ? room.discountedPrice : room.actualPrice) + '/night'}">
+                                                    $180/night
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <a th:href="@{'/user/booking/' + ${room.roomId} + 
+                                                    '?checkIn=' + ${checkIn} + 
+                                                    '&checkOut=' + ${checkOut} + 
+                                                    '&adults=' + ${adults} + 
+                                                    '&children=' + ${children}}" 
+                                           class="btn btn-primary">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/layout :: footer"></footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set minimum date for checkOut based on checkIn
+            const checkInInput = document.getElementById('checkIn');
+            const checkOutInput = document.getElementById('checkOut');
+            
+            checkInInput.addEventListener('change', function() {
+                const checkInDate = new Date(this.value);
+                const nextDay = new Date(checkInDate);
+                nextDay.setDate(checkInDate.getDate() + 1);
+                
+                // Format nextDay as YYYY-MM-DD
+                const year = nextDay.getFullYear();
+                const month = String(nextDay.getMonth() + 1).padStart(2, '0');
+                const day = String(nextDay.getDate()).padStart(2, '0');
+                
+                checkOutInput.min = `${year}-${month}-${day}`;
+                
+                // If checkOut is before checkIn + 1, update it
+                if (new Date(checkOutInput.value) <= checkInDate) {
+                    checkOutInput.value = `${year}-${month}-${day}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

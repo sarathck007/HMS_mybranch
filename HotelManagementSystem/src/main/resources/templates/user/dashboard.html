@@ -1,0 +1,222 @@
+<!-- templates/user/dashboard.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/layout :: head('Dashboard')">
+</head>
+<body>
+	<header th:replace="fragments/layout :: header-user"></header>
+
+	<div class="container py-5">
+		<h1 class="mb-4">
+			Welcome, <span th:text="${user.firstName}">User</span>!
+		</h1>
+
+		<div class="row mb-4">
+			<!-- Summary Cards -->
+			<div class="col-md-4 mb-4">
+				<div class="card border-left-primary shadow h-100 py-2">
+					<div class="card-body">
+						<div class="row no-gutters align-items-center">
+							<div class="col mr-2">
+								<div
+									class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+									Active Bookings</div>
+								<div class="h5 mb-0 font-weight-bold text-gray-800"
+									th:text="${activeBookingsCount ?: 0}">0</div>
+							</div>
+							<div class="col-auto">
+								<i class="fas fa-calendar fa-2x text-gray-300"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4 mb-4">
+				<div class="card border-left-success shadow h-100 py-2">
+					<div class="card-body">
+						<div class="row no-gutters align-items-center">
+							<div class="col mr-2">
+								<div
+									class="text-xs font-weight-bold text-success text-uppercase mb-1">
+									Total Stays</div>
+								<div class="h5 mb-0 font-weight-bold text-gray-800"
+									th:text="${totalBookingsCount ?: 0}">0</div>
+							</div>
+							<div class="col-auto">
+								<i class="fas fa-hotel fa-2x text-gray-300"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4 mb-4">
+				<div class="card border-left-info shadow h-100 py-2">
+					<div class="card-body">
+						<div class="row no-gutters align-items-center">
+							<div class="col mr-2">
+								<div
+									class="text-xs font-weight-bold text-info text-uppercase mb-1">
+									Points Earned</div>
+								<div class="h5 mb-0 font-weight-bold text-gray-800">250</div>
+							</div>
+							<div class="col-auto">
+								<i class="fas fa-medal fa-2x text-gray-300"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<!-- Quick Actions -->
+			<div class="col-lg-6 mb-4">
+				<div class="card shadow mb-4">
+					<div class="card-header py-3">
+						<h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+					</div>
+					<div class="card-body">
+						<div class="d-grid gap-2">
+							<a th:href="@{/user/rooms}" class="btn btn-primary btn-lg mb-2">
+								<i class="fas fa-search me-2"></i> Find a Room
+							</a> <a th:href="@{/user/bookings}" class="btn btn-info btn-lg mb-2">
+								<i class="fas fa-list me-2"></i> View Bookings
+							</a> <a th:href="@{/user/profile}" class="btn btn-secondary btn-lg">
+								<i class="fas fa-user-edit me-2"></i> Update Profile
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Upcoming Booking -->
+			<div class="col-lg-6 mb-4">
+				<div class="card shadow mb-4">
+					<div class="card-header py-3">
+						<h6 class="m-0 font-weight-bold text-primary">Upcoming Stay</h6>
+					</div>
+					<div class="card-body">
+						<!-- If there's an upcoming booking -->
+						<div th:if="${upcomingBooking != null}" class="upcoming-booking">
+							<div class="d-flex align-items-center mb-3">
+								<div class="flex-shrink-0">
+									<img class="img-fluid rounded"
+										style="width: 100px; height: 70px; object-fit: cover;"
+										th:src="@{/images/Room1.jpg}" alt="Room Image">
+								</div>
+								<div class="flex-grow-1 ms-3">
+									<h5 class="mb-1" th:text="${upcomingBooking.roomName}">Deluxe
+										Suite</h5>
+									<p class="mb-0 text-muted">
+										<i class="fas fa-calendar me-1"></i> <span
+											th:text="${#temporals.format(upcomingBooking.checkInDate, 'MMM dd, yyyy')}">Apr
+											25, 2024</span> - <span
+											th:text="${#temporals.format(upcomingBooking.checkOutDate, 'MMM dd, yyyy')}">Apr
+											30, 2024</span>
+									</p>
+								</div>
+							</div>
+							<p class="mb-3">
+								<span class="badge bg-success me-1"
+									th:text="${upcomingBooking.status}">CONFIRMED</span> <strong>Guests:</strong>
+								<span th:text="${upcomingBooking.guests}">2</span> | <strong>Booking
+									ID:</strong> <span th:text="${upcomingBooking.bookingId}">BK12345</span>
+							</p>
+							<div class="d-flex">
+								<a th:href="@{'/user/bookings/' + ${upcomingBooking.bookingId}}"
+									class="btn btn-sm btn-outline-primary me-2"> View Details </a>
+								<form
+									th:action="@{'/api/bookings/' + ${upcomingBooking.bookingId} + '/cancel'}"
+									method="post"
+									onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+									<button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+								</form>
+							</div>
+						</div>
+
+						<!-- If there's no upcoming booking -->
+						<div th:if="${upcomingBooking == null}" class="text-center py-4">
+							<i class="fas fa-calendar-alt fa-4x text-muted mb-3"></i>
+							<h5>No Upcoming Stays</h5>
+							<p class="mb-3">Ready for your next adventure? Book your stay
+								now!</p>
+							<a th:href="@{/user/rooms}" class="btn btn-primary">Book a
+								Room</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Recent Bookings Table -->
+		<div class="card shadow mb-4">
+			<div
+				class="card-header py-3 d-flex justify-content-between align-items-center">
+				<h6 class="m-0 font-weight-bold text-primary">Recent Bookings</h6>
+				<a th:href="@{/user/bookings}" class="btn btn-sm btn-primary">View
+					All</a>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-bordered" width="100%" cellspacing="0">
+						<thead>
+							<tr>
+								<th>Booking ID</th>
+								<th>Room</th>
+								<th>Check-in</th>
+								<th>Check-out</th>
+								<th>Status</th>
+								<th>Price</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!-- Loop through recent bookings -->
+							<tr th:each="booking : ${bookings}">
+								<td th:text="${booking.bookingId}">BK12345</td>
+								<td th:text="${booking.roomName}">Deluxe Suite</td>
+								<td
+									th:text="${#temporals.format(booking.checkInDate, 'MMM dd, yyyy')}">Apr
+									25, 2024</td>
+								<td
+									th:text="${#temporals.format(booking.checkOutDate, 'MMM dd, yyyy')}">Apr
+									30, 2024</td>
+								<td><span class="badge"
+									th:classappend="${booking.status == 'CONFIRMED' ? 'bg-success' : 
+                                                          (booking.status == 'CANCELLED' ? 'bg-danger' : 
+                                                          (booking.status == 'CHECKED_IN' ? 'bg-primary' : 
+                                                          (booking.status == 'CHECKED_OUT' ? 'bg-secondary' : 'bg-warning')))}"
+									th:text="${booking.status}">CONFIRMED</span></td>
+								<td th:text="${'$' + booking.totalPrice}">$1,250</td>
+								<td><a
+									th:href="@{'/user/bookings/' + ${booking.bookingId}}"
+									class="btn btn-sm btn-info"> <i class="fas fa-eye"></i>
+								</a> <!-- Show cancel button only for future bookings with status CONFIRMED or PENDING -->
+									<form
+										th:if="${booking.status == 'CONFIRMED' || booking.status == 'PENDING'}"
+										th:action="@{'/api/bookings/' + ${booking.bookingId} + '/cancel'}"
+										method="post" class="d-inline"
+										onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+										<button type="submit" class="btn btn-sm btn-danger">
+											<i class="fas fa-times"></i>
+										</button>
+									</form></td>
+							</tr>
+							<!-- If no bookings -->
+							<tr th:if="${bookings == null || bookings.empty}">
+								<td colspan="7" class="text-center">No booking history
+									found.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>

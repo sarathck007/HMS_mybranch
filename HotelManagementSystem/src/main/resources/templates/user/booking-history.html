@@ -1,0 +1,174 @@
+<!-- templates/user/booking-history.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('My Bookings')">
+</head>
+<body>
+    <header th:replace="fragments/layout :: header-user"></header>
+
+    <div class="container py-5">
+        <h1 class="mb-4">My Bookings</h1>
+        
+        <!-- Booking Tabs -->
+        <ul class="nav nav-tabs mb-4" id="bookingTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" 
+                        type="button" role="tab" aria-controls="upcoming" aria-selected="true">
+                    Upcoming
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" 
+                        type="button" role="tab" aria-controls="past" aria-selected="false">
+                    Past
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" 
+                        type="button" role="tab" aria-controls="cancelled" aria-selected="false">
+                    Cancelled
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="bookingTabsContent">
+            <!-- Upcoming Bookings Tab -->
+            <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                <div class="row">
+                    <!-- If there are upcoming bookings -->
+                    <div th:if="${upcomingBookings != null && !upcomingBookings.empty}" 
+                         class="col-md-6 col-lg-4 mb-4" th:each="booking : ${upcomingBookings}">
+                        <div class="card shadow h-100">
+                            <img th:src="@{/images/Room1.jpg}" class="card-img-top" alt="Room">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${booking.roomName}">Deluxe Suite</h5>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-success" th:text="${booking.status}">CONFIRMED</span>
+                                    <span class="fw-bold" th:text="${'$' + booking.totalPrice}">$720</span>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-1">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        <span th:text="${#temporals.format(booking.checkInDate, 'MMM dd, yyyy')}">Jun 1, 2024</span> - 
+                                        <span th:text="${#temporals.format(booking.checkOutDate, 'MMM dd, yyyy')}">Jun 5, 2024</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i class="fas fa-user me-2"></i>
+                                        <span th:text="${booking.guests + ' Guests'}">3 Guests</span>
+                                    </p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{'/user/bookings/' + ${booking.bookingId}}" class="btn btn-outline-primary flex-grow-1">
+                                        View Details
+                                    </a>
+                                    <form th:action="@{'/api/bookings/' + ${booking.bookingId} + '/cancel'}" method="post"
+                                          class="flex-grow-1"
+                                          onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        <button type="submit" class="btn btn-outline-danger w-100">Cancel</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- If no upcoming bookings -->
+                    <div th:if="${upcomingBookings == null || upcomingBookings.empty}" class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> You have no upcoming bookings.
+                            <a th:href="@{/user/rooms}" class="alert-link">Book a room now!</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Past Bookings Tab -->
+            <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+                <div class="row">
+                    <!-- If there are past bookings -->
+                    <div th:if="${pastBookings != null && !pastBookings.empty}" 
+                         class="col-md-6 col-lg-4 mb-4" th:each="booking : ${pastBookings}">
+                        <div class="card shadow h-100">
+                            <img th:src="@{/images/Room1.jpg}" class="card-img-top" alt="Room">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${booking.roomName}">Deluxe Suite</h5>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-secondary" th:text="${booking.status}">CHECKED_OUT</span>
+                                    <span class="fw-bold" th:text="${'$' + booking.totalPrice}">$720</span>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-1">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        <span th:text="${#temporals.format(booking.checkInDate, 'MMM dd, yyyy')}">May 1, 2024</span> - 
+                                        <span th:text="${#temporals.format(booking.checkOutDate, 'MMM dd, yyyy')}">May 5, 2024</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i class="fas fa-user me-2"></i>
+                                        <span th:text="${booking.guests + ' Guests'}">2 Guests</span>
+                                    </p>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{'/user/bookings/' + ${booking.bookingId}}" class="btn btn-outline-primary w-100">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- If no past bookings -->
+                    <div th:if="${pastBookings == null || pastBookings.empty}" class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> You have no past bookings.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cancelled Bookings Tab -->
+            <div class="tab-pane fade" id="cancelled" role="tabpanel" aria-labelledby="cancelled-tab">
+                <div class="row">
+                    <!-- If there are cancelled bookings -->
+                    <div th:if="${cancelledBookings != null && !cancelledBookings.empty}" 
+                         class="col-md-6 col-lg-4 mb-4" th:each="booking : ${cancelledBookings}">
+                        <div class="card shadow h-100">
+                            <img th:src="@{/images/Room1.jpg}" class="card-img-top" alt="Room">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${booking.roomName}">Deluxe Suite</h5>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-danger" th:text="${booking.status}">CANCELLED</span>
+                                    <span class="fw-bold" th:text="${'$' + booking.totalPrice}">$720</span>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-1">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        <span th:text="${#temporals.format(booking.checkInDate, 'MMM dd, yyyy')}">Jul 1, 2024</span> - 
+                                        <span th:text="${#temporals.format(booking.checkOutDate, 'MMM dd, yyyy')}">Jul 5, 2024</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i class="fas fa-user me-2"></i>
+                                        <span th:text="${booking.guests + ' Guests'}">4 Guests</span>
+                                    </p>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{'/user/bookings/' + ${booking.bookingId}}" class="btn btn-outline-primary w-100">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- If no cancelled bookings -->
+                    <div th:if="${cancelledBookings == null || cancelledBookings.empty}" class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> You have no cancelled bookings.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>

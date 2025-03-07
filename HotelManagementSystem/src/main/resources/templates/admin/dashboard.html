@@ -1,0 +1,316 @@
+<!-- templates/admin/dashboard.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/layout :: head('Admin Dashboard')">
+</head>
+<body>
+    <header th:replace="fragments/layout :: header-admin"></header>
+    
+    <div class="container-fluid py-4">
+        <h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
+        
+        <!-- Cards Row -->
+        <div class="row">
+            <!-- Total Bookings Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Bookings</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalBookings ?: 0}">215</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Revenue Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Monthly Revenue</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${'$' + currentMonthRevenue ?: 0}">$215,000</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Rooms Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Active Rooms
+                                </div>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" th:text="${activeRooms ?: 0}">25</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-hotel fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Bookings Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Pending Bookings</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${pendingBookings ?: 0}">18</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Monthly Revenue Chart -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Monthly Revenue Overview</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Status Pie Chart -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Booking Status</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-pie pt-4 pb-2">
+                            <canvas id="bookingStatusChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center small">
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-primary"></i> Confirmed
+                            </span>
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-success"></i> Checked In
+                            </span>
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-warning"></i> Pending
+                            </span>
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-danger"></i> Cancelled
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Bookings Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Pending Bookings</h6>
+                <a th:href="@{/admin/bookings}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Guest</th>
+                                <th>Room</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="booking : ${recentBookings}">
+                                <td th:text="${booking.bookingId}">BK12345</td>
+                                <td th:text="${booking.userName}">John Doe</td>
+                                <td th:text="${booking.roomName}">Deluxe Suite</td>
+                                <td th:text="${#temporals.format(booking.checkInDate, 'MMM dd, yyyy')}">Apr 25, 2024</td>
+                                <td th:text="${#temporals.format(booking.checkOutDate, 'MMM dd, yyyy')}">Apr 30, 2024</td>
+                                <td>
+                                    <span class="badge bg-warning" th:text="${booking.status}">PENDING</span>
+                                </td>
+                                <td th:text="${'$' + booking.totalPrice}">$1,250</td>
+                                <td>
+                                    <a th:href="@{'/admin/bookings/' + ${booking.bookingId}}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-success btn-approve"
+                                            th:data-booking-id="${booking.bookingId}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${recentBookings == null || recentBookings.empty}">
+                                <td colspan="8" class="text-center">No pending bookings found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/layout :: footer"></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Revenue Chart
+            const monthlyIncome = /*[[${monthlyIncome}]]*/ [];
+            const months = monthlyIncome.map(item => item.month);
+            const incomeData = monthlyIncome.map(item => item.income);
+            
+            const revenueChart = new Chart(
+                document.getElementById('revenueChart'),
+                {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Revenue',
+                            data: incomeData,
+                            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            pointBorderColor: 'rgba(78, 115, 223, 1)',
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                            pointHitRadius: 10,
+                            pointBorderWidth: 2,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.parsed.y;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Booking Status Chart
+            const bookingStatusData = /*[[${bookingStatusData}]]*/ 
+                {confirmed: 60, checkedIn: 20, pending: 10, cancelled: 10};
+            
+            const bookingStatusChart = new Chart(
+                document.getElementById('bookingStatusChart'),
+                {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Confirmed', 'Checked In', 'Pending', 'Cancelled'],
+                        datasets: [{
+                            data: [
+                                bookingStatusData.confirmed,
+                                bookingStatusData.checkedIn,
+                                bookingStatusData.pending,
+                                bookingStatusData.cancelled
+                            ],
+                            backgroundColor: [
+                                '#4e73df',
+                                '#1cc88a',
+                                '#f6c23e',
+                                '#e74a3b'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                }
+            );
+            
+            // Handle booking approval
+            document.querySelectorAll('.btn-approve').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookingId = this.getAttribute('data-booking-id');
+                    if (confirm('Are you sure you want to approve this booking?')) {
+                        // Send approval request
+                        fetch(`/api/admin/bookings/${bookingId}/approve`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                // Reload the page
+                                window.location.reload();
+                            } else {
+                                alert(result.message || 'Failed to approve booking.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while approving the booking.');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

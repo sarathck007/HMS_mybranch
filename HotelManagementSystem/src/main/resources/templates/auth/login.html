@@ -1,0 +1,149 @@
+<!-- templates/auth/login.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Login')">
+</head>
+<body>
+    <header th:replace="fragments/layout :: header-public"></header>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <h3 class="card-title text-center mb-4">Login</h3>
+                        
+                        <div th:if="${param.error}" class="alert alert-danger">
+                            Invalid email or password
+                        </div>
+                        
+                        <div th:if="${param.logout}" class="alert alert-success">
+                            You have been logged out
+                        </div>
+                        
+                        <ul class="nav nav-pills nav-justified mb-4" id="loginTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="user-tab" data-bs-toggle="pill" data-bs-target="#user-login" type="button" role="tab" aria-controls="user-login" aria-selected="true">User</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="admin-tab" data-bs-toggle="pill" data-bs-target="#admin-login" type="button" role="tab" aria-controls="admin-login" aria-selected="false">Admin</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="loginTabsContent">
+                            <!-- User Login Tab -->
+                            <div class="tab-pane fade show active" id="user-login" role="tabpanel" aria-labelledby="user-tab">
+                                <form th:action="@{/api/auth/login}" method="post" id="userLoginForm">
+                                    <input type="hidden" name="role" value="user">
+                                    
+                                    <div class="mb-3">
+                                        <label for="userEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="userEmail" name="email" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="userPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="userPassword" name="password" required>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Admin Login Tab -->
+                            <div class="tab-pane fade" id="admin-login" role="tabpanel" aria-labelledby="admin-tab">
+                                <form th:action="@{/api/auth/admin/login}" method="post" id="adminLoginForm">
+                                    <input type="hidden" name="role" value="admin">
+                                    
+                                    <div class="mb-3">
+                                        <label for="adminEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="adminEmail" name="email" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="adminPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="adminPassword" name="password" required>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="adminRememberMe">
+                                        <label class="form-check-label" for="adminRememberMe">Remember me</label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <p>Don't have an account? <a th:href="@{/register}" class="text-primary">Register here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/layout :: footer"></footer>
+
+    <script>
+        // Handle form submission with AJAX to the REST API
+        document.addEventListener('DOMContentLoaded', function() {
+            const userForm = document.getElementById('userLoginForm');
+            const adminForm = document.getElementById('adminLoginForm');
+            
+            userForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitForm(userForm, '/api/auth/login', '/user/dashboard');
+            });
+            
+            adminForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitForm(adminForm, '/api/auth/admin/login', '/admin/dashboard');
+            });
+            
+            function submitForm(form, endpoint, redirectUrl) {
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => data[key] = value);
+                
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // Store token in localStorage
+                        localStorage.setItem('token', result.data.token);
+                        
+                        // IMPORTANT: Also store in a cookie for the server to access
+                        document.cookie = "jwt=" + result.data.token + "; path=/; max-age=86400";
+                        
+                        // Store user data
+                        localStorage.setItem('user', JSON.stringify(result.data.user));
+                        
+                        // Redirect with token in query param (alternative approach)
+                        window.location.href = redirectUrl + "?token=" + result.data.token;
+                    } else {
+                        // Show error message
+                        alert(result.message || 'Login failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during login');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!-- templates/admin/reports.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/layout :: head('Reports')">
+</head>
+<body>
+    <header th:replace="fragments/layout :: header-admin"></header>
+    
+    <div class="container-fluid py-4">
+        <h1 class="h3 mb-4 text-gray-800">Reports & Analytics</h1>
+        
+        <!-- Date Range Filter -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Filter by Date Range</h6>
+            </div>
+            <div class="card-body">
+                <form id="dateRangeForm" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Revenue Charts Row -->
+        <div class="row">
+            <!-- Monthly Revenue Line Chart -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Monthly Revenue</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="revenueChartOptions" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="revenueChartOptions">
+                                <li><a class="dropdown-item" href="#" onclick="exportChartAsImage('revenueChart')">Export as Image</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportChartData('revenueChart')">Export Data as CSV</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Revenue by Room Type Pie Chart -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Revenue by Room Type</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="roomTypeChartOptions" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="roomTypeChartOptions">
+                                <li><a class="dropdown-item" href="#" onclick="exportChartAsImage('roomTypeChart')">Export as Image</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportChartData('roomTypeChart')">Export Data as CSV</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-pie">
+                            <canvas id="roomTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Occupancy Charts Row -->
+        <div class="row">
+            <!-- Monthly Occupancy Rate Chart -->
+            <div class="col-xl-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Monthly Occupancy Rate</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="occupancyChartOptions" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="occupancyChartOptions">
+                                <li><a class="dropdown-item" href="#" onclick="exportChartAsImage('occupancyChart')">Export as Image</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportChartData('occupancyChart')">Export Data as CSV</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-bar">
+                            <canvas id="occupancyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Booking Source Chart -->
+            <div class="col-xl-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Booking Status Distribution</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="sourceChartOptions" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sourceChartOptions">
+                                <li><a class="dropdown-item" href="#" onclick="exportChartAsImage('bookingStatusChart')">Export as Image</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportChartData('bookingStatusChart')">Export Data as CSV</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-pie">
+                            <canvas id="bookingStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Cards Row -->
+        <div class="row">
+            <!-- Revenue Summary -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Revenue</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRevenue">$0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Average Daily Rate -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Average Daily Rate</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="averageDailyRate">$0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Average Length of Stay -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Average Length of Stay</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="averageStay">0 nights</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-bed fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cancellation Rate -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Cancellation Rate</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="cancellationRate">0%</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monthly Summary Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Monthly Summary</h6>
+                <button class="btn btn-sm btn-outline-primary" onclick="exportTableToCSV('monthlySummaryTable', 'monthly_summary.csv')">
+                    <i class="fas fa-download me-1"></i> Export
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="monthlySummaryTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Bookings</th>
+                                <th>Revenue</th>
+                                <th>Occupancy Rate</th>
+                                <th>Average Daily Rate</th>
+                                <th>Cancellations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated with monthly data -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Total</th>
+                                <th id="totalBookings">0</th>
+                                <th id="tableTotalRevenue">$0</th>
+                                <th id="averageOccupancy">0%</th>
+                                <th id="tableAverageDailyRate">$0</th>
+                                <th id="totalCancellations">0</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="fragments/layout :: footer"></footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get Monthly Income Data from server
+            const monthlyIncome = /*[[${monthlyIncome}]]*/ [];
+            
+            // Format data for charts
+            const months = monthlyIncome.map(item => item.month);
+            const revenueData = monthlyIncome.map(item => item.income);
+            
+            // Calculate total revenue
+            const totalRevenue = revenueData.reduce((sum, value) => sum + value, 0);
+            document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toLocaleString();
+            
+            // Revenue Chart
+            const revenueChart = new Chart(
+                document.getElementById('revenueChart'),
+                {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Revenue',
+                            data: revenueData,
+                            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            pointBorderColor: 'rgba(78, 115, 223, 1)',
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                            pointHitRadius: 10,
+                            pointBorderWidth: 2,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.parsed.y;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Room Type Revenue Chart (Pie Chart) - Example data
+            const roomTypeData = {
+                labels: ['Deluxe Suite', 'Standard Room', 'Executive Room', 'Presidential Suite'],
+                data: [40, 20, 30, 10]
+            };
+            
+            const roomTypeChart = new Chart(
+                document.getElementById('roomTypeChart'),
+                {
+                    type: 'pie',
+                    data: {
+                        labels: roomTypeData.labels,
+                        datasets: [{
+                            data: roomTypeData.data,
+                            backgroundColor: [
+                                '#4e73df',
+                                '#1cc88a',
+                                '#36b9cc',
+                                '#f6c23e'
+                            ],
+                            hoverBackgroundColor: [
+                                '#2e59d9',
+                                '#17a673',
+                                '#2c9faf',
+                                '#dda20a'
+                            ],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${percentage}% ($${Math.round(totalRevenue * value / 100)})`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Occupancy Chart (Bar Chart) - Example data
+            const occupancyData = {
+                labels: months,
+                data: [65, 75, 80, 85, 77, 92, 88, 79, 83, 80, 75, 73]
+            };
+            
+            const occupancyChart = new Chart(
+                document.getElementById('occupancyChart'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: occupancyData.labels,
+                        datasets: [{
+                            label: 'Occupancy Rate (%)',
+                            data: occupancyData.data,
+                            backgroundColor: '#36b9cc',
+                            borderColor: '#2c9faf',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Booking Status Chart (Doughnut Chart) - Example data
+            const bookingStatusData = {
+                labels: ['Confirmed', 'Checked In', 'Checked Out', 'Cancelled'],
+                data: [30, 15, 50, 5]
+            };
+            
+            const bookingStatusChart = new Chart(
+                document.getElementById('bookingStatusChart'),
+                {
+                    type: 'doughnut',
+                    data: {
+                        labels: bookingStatusData.labels,
+                        datasets: [{
+                            data: bookingStatusData.data,
+                            backgroundColor: [
+                                '#1cc88a',
+                                '#4e73df',
+                                '#858796',
+                                '#e74a3b'
+                            ],
+                            hoverBackgroundColor: [
+                                '#17a673',
+                                '#2e59d9',
+                                '#6e707e',
+                                '#be2617'
+                            ],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${percentage}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Calculate other metrics (example data)
+            document.getElementById('averageDailyRate').textContent = '$150';
+            document.getElementById('averageStay').textContent = '3.5 nights';
+            document.getElementById('cancellationRate').textContent = '5.0%';
+            
+            // Populate Monthly Summary Table (example data)
+            const monthlySummaryTable = document.getElementById('monthlySummaryTable').getElementsByTagName('tbody')[0];
+            
+            months.forEach((month, index) => {
+                const row = monthlySummaryTable.insertRow();
+                
+                // Month
+                const cellMonth = row.insertCell(0);
+                cellMonth.textContent = month;
+                
+                // Bookings (example data)
+                const bookings = Math.floor(Math.random() * 100) + 50;
+                const cellBookings = row.insertCell(1);
+                cellBookings.textContent = bookings;
+                
+                // Revenue
+                const cellRevenue = row.insertCell(2);
+                cellRevenue.textContent = '$' + revenueData[index].toLocaleString();
+                
+                // Occupancy Rate
+                const cellOccupancy = row.insertCell(3);
+                cellOccupancy.textContent = occupancyData.data[index] + '%';
+                
+                // Average Daily Rate (example data)
+                const adr = Math.floor(Math.random() * 50) + 120;
+                const cellAdr = row.insertCell(4);
+                cellAdr.textContent = '$' + adr;
+                
+                // Cancellations (example data)
+                const cancellations = Math.floor(Math.random() * 10);
+                const cellCancellations = row.insertCell(5);
+                cellCancellations.textContent = cancellations;
+            });
+            
+            // Update totals in footer (example calculations)
+            const totalBookings = 843; // Example value
+            const averageOccupancy = 79.4; // Example value
+            const tableAverageDailyRate = 150; // Example value
+            const totalCancellations = 42; // Example value
+            
+            document.getElementById('totalBookings').textContent = totalBookings;
+            document.getElementById('tableTotalRevenue').textContent = '$' + totalRevenue.toLocaleString();
+            document.getElementById('averageOccupancy').textContent = averageOccupancy.toFixed(1) + '%';
+            document.getElementById('tableAverageDailyRate').textContent = '$' + tableAverageDailyRate;
+            document.getElementById('totalCancellations').textContent = totalCancellations;
+            
+            // Date Range Form
+            const dateRangeForm = document.getElementById('dateRangeForm');
+            
+            dateRangeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates.');
+                    return;
+                }
+                
+                // Redirect with date range
+                window.location.href = `/admin/reports?startDate=${startDate}&endDate=${endDate}`;
+            });
+        });
+        
+        // Export chart as image
+        function exportChartAsImage(chartId) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            
+            link.href = canvas.toDataURL('image/png');
+            link.download = chartId + '.png';
+            link.click();
+        }
+        
+        // Export chart data as CSV
+        function exportChartData(chartId) {
+            const chartInstance = Chart.getChart(chartId);
+            const data = chartInstance.data;
+            
+            // Create CSV content
+            const csvRows = [];
+            
+            // Add header row
+            const headers = ['Label', 'Value'];
+            csvRows.push(headers.join(','));
+            
+            // Add data rows
+            data.labels.forEach((label, index) => {
+                let value;
+                
+                // Handle different chart types
+                if (chartInstance.config.type === 'line' || chartInstance.config.type === 'bar') {
+                    value = data.datasets[0].data[index];
+                } else {
+                    value = data.datasets[0].data[index];
+                }
+                
+                csvRows.push(`"${label}","${value}"`);
+            });
+            
+            // Create and download CSV file
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            link.href = URL.createObjectURL(blob);
+            link.download = chartId + '_data.csv';
+            link.click();
+        }
+        
+        // Export table to CSV
+        function exportTableToCSV(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tr');
+            
+            // Create CSV content
+            const csvRows = [];
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                const rowData = [];
+                
+                cells.forEach(cell => {
+                    // Escape quotes and add quotes around cell content
+                    let cellText = cell.textContent.trim().replace(/"/g, '""');
+                    rowData.push(`"${cellText}"`);
+                });
+                
+                csvRows.push(rowData.join(','));
+            });
+            
+            // Create and download CSV file
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+/* main.css - Main stylesheet for Hotel Reservation System */
+
+/* Global Styles */
+body {
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	color: #333;
+	line-height: 1.6;
+	background-color: #f8f9fa;
+}
+
+/* Header & Navigation */
+.navbar-brand img {
+	border-radius: 50%;
+}
+
+.navbar {
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Section */
+.hero-carousel .carousel-item img {
+	height: 500px;
+	object-fit: cover;
+}
+
+.hero-carousel .carousel-caption {
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 5px;
+	padding: 20px;
+}
+
+/* Cards */
+.card {
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	margin-bottom: 20px;
+}
+
+.card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+	font-weight: 600;
+}
+
+.room-card img {
+	height: 200px;
+	object-fit: cover;
+}
+
+/* Forms */
+.form-control:focus {
+	border-color: #4e73df;
+	box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.search-form {
+	background-color: #fff;
+	padding: 20px;
+	border-radius: 5px;
+}
+
+/* Dashboard */
+.border-left-primary {
+	border-left: 4px solid #4e73df;
+}
+
+.border-left-success {
+	border-left: 4px solid #1cc88a;
+}
+
+.border-left-info {
+	border-left: 4px solid #36b9cc;
+}
+
+.border-left-warning {
+	border-left: 4px solid #f6c23e;
+}
+
+.border-left-danger {
+	border-left: 4px solid #e74a3b;
+}
+
+/* Footer */
+footer {
+	background-color: #f8f9fa;
+	border-top: 1px solid #e9ecef;
+	padding-top: 20px;
+}
+
+footer .social-icons a {
+	color: #4e73df;
+	font-size: 1.2rem;
+	margin-right: 15px;
+}
+
+footer .social-icons a:hover {
+	color: #2e59d9;
+}
+
+/* Table */
+.table th {
+	font-weight: 600;
+	background-color: #f8f9fa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.hero-carousel .carousel-item img {
+		height: 300px;
+	}
+
+	.card-columns {
+		column-count: 1;
+	}
+}
+
+/* Utilities */
+.text-gray-800 {
+	color: #5a5c69 !important;
+}
+
+.text-gray-300 {
+	color: #dddfeb !important;
+}
+
+.font-weight-bold {
+	font-weight: 700 !important;
+}
+
+/* Badges */
+.badge {
+	font-weight: 600;
+	padding: 0.35em 0.65em;
+}

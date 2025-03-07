@@ -1,0 +1,376 @@
+<!-- templates/user/profile.html (also used as admin/profile.html) -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/layout :: head('My Profile')">
+</head>
+<body>
+    <!-- Different header based on role -->
+    <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+        <header th:replace="fragments/layout :: header-admin"></header>
+    </div>
+    <div th:unless="${#authorization.expression('hasRole(''ADMIN'')')}">
+        <header th:replace="fragments/layout :: header-user"></header>
+    </div>
+    
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h4 class="mb-0">My Profile</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Profile Image and Basic Info -->
+                            <div class="col-md-4 mb-4 mb-md-0 text-center">
+                                <img th:src="@{/images/ProfilePic.jpg}" alt="Profile" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                                <h5 class="mt-2" th:text="${user.firstName + ' ' + user.lastName}">John Doe</h5>
+                                <p class="text-muted">
+                                    <span th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                                        <i class="fas fa-user-shield me-1"></i> Administrator
+                                    </span>
+                                    <span th:unless="${#authorization.expression('hasRole(''ADMIN'')')}">
+                                        <i class="fas fa-user me-1"></i> Customer
+                                    </span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-envelope me-1"></i>
+                                    <span th:text="${user.email}">john.doe@example.com</span>
+                                </p>
+                                <p>
+                                    <i class="fas fa-phone me-1"></i>
+                                    <span th:text="${user.phone}">+1-234-567-8900</span>
+                                </p>
+                                <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                    <i class="fas fa-user-edit me-1"></i> Edit Profile
+                                </button>
+                            </div>
+                            
+                            <!-- Profile Tabs -->
+                            <div class="col-md-8">
+                                <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab" aria-controls="account" aria-selected="true">
+                                            Account Details
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="false">
+                                            Security
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab" aria-controls="preferences" aria-selected="false">
+                                            Preferences
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="profileTabsContent">
+                                    <!-- Account Tab -->
+                                    <div class="tab-pane fade show active" id="account" role="tabpanel" aria-labelledby="account-tab">
+                                        <h5 class="mb-3">Account Information</h5>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <tbody>
+                                                    <tr>
+                                                        <th style="width: 30%">First Name</th>
+                                                        <td th:text="${user.firstName}">John</td>
+                                                    </tr>
+                                                    <tr th:if="${user.middleName != null}">
+                                                        <th>Middle Name</th>
+                                                        <td th:text="${user.middleName}">David</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Last Name</th>
+                                                        <td th:text="${user.lastName}">Doe</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Email</th>
+                                                        <td th:text="${user.email}">john.doe@example.com</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Phone</th>
+                                                        <td th:text="${user.phone}">+1-234-567-8900</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Account Created</th>
+                                                        <td th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy, HH:mm')}">01 Mar 2024, 14:30</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Last Updated</th>
+                                                        <td th:text="${#temporals.format(user.updatedAt, 'dd MMM yyyy, HH:mm')}">15 Mar 2024, 10:15</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Security Tab -->
+                                    <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                                        <h5 class="mb-3">Security Settings</h5>
+                                        <form id="passwordChangeForm">
+                                            <div class="mb-3">
+                                                <label for="currentPassword" class="form-label">Current Password</label>
+                                                <input type="password" class="form-control" id="currentPassword" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="newPassword" class="form-label">New Password</label>
+                                                <input type="password" class="form-control" id="newPassword" required>
+                                                <div class="form-text">
+                                                    Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                                <input type="password" class="form-control" id="confirmPassword" required>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" id="changePasswordBtn">
+                                                <i class="fas fa-key me-1"></i> Change Password
+                                            </button>
+                                        </form>
+                                        
+                                        <hr class="my-4">
+                                        
+                                        <h5 class="mb-3">Login Sessions</h5>
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            You are currently logged in from this device.
+                                        </div>
+                                        <button type="button" class="btn btn-danger" id="logoutAllBtn">
+                                            <i class="fas fa-sign-out-alt me-1"></i> Logout from All Devices
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Preferences Tab -->
+                                    <div class="tab-pane fade" id="preferences" role="tabpanel" aria-labelledby="preferences-tab">
+                                        <h5 class="mb-3">Notification Preferences</h5>
+                                        <form id="preferencesForm">
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="emailNotifications" checked>
+                                                <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="smsNotifications" checked>
+                                                <label class="form-check-label" for="smsNotifications">SMS Notifications</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="marketingEmails">
+                                                <label class="form-check-label" for="marketingEmails">Marketing Emails</label>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" id="savePreferencesBtn">
+                                                <i class="fas fa-save me-1"></i> Save Preferences
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProfileForm">
+                        <div class="mb-3">
+                            <label for="editFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="editFirstName" name="firstName" th:value="${user.firstName}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editMiddleName" class="form-label">Middle Name</label>
+                            <input type="text" class="form-control" id="editMiddleName" name="middleName" th:value="${user.middleName}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="editLastName" name="lastName" th:value="${user.lastName}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email" th:value="${user.email}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPhone" class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="editPhone" name="phone" th:value="${user.phone}" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="fragments/layout :: footer"></footer>
+    
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Save Profile Changes
+            const saveProfileBtn = document.getElementById('saveProfileBtn');
+            const editProfileForm = document.getElementById('editProfileForm');
+            
+            saveProfileBtn.addEventListener('click', function() {
+                if (editProfileForm.checkValidity()) {
+                    const formData = new FormData(editProfileForm);
+                    const profileData = {};
+                    
+                    formData.forEach((value, key) => {
+                        profileData[key] = value;
+                    });
+                    
+                    // Update profile API
+                    fetch('/api/auth/profile', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        body: JSON.stringify(profileData)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // Close modal and reload page
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                            modal.hide();
+                            alert('Profile updated successfully!');
+                            window.location.reload();
+                        } else {
+                            alert(result.message || 'Failed to update profile.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating your profile.');
+                    });
+                } else {
+                    editProfileForm.reportValidity();
+                }
+            });
+            
+            // Change Password
+            const changePasswordBtn = document.getElementById('changePasswordBtn');
+            const passwordChangeForm = document.getElementById('passwordChangeForm');
+            
+            changePasswordBtn.addEventListener('click', function() {
+                if (passwordChangeForm.checkValidity()) {
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    // Validate password match
+                    if (newPassword !== confirmPassword) {
+                        alert('New password and confirmation password do not match.');
+                        return;
+                    }
+                    
+                    // Password change API
+                    fetch('/api/auth/change-password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        body: JSON.stringify({
+                            currentPassword: currentPassword,
+                            newPassword: newPassword
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            alert('Password changed successfully!');
+                            passwordChangeForm.reset();
+                        } else {
+                            alert(result.message || 'Failed to change password.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while changing your password.');
+                    });
+                } else {
+                    passwordChangeForm.reportValidity();
+                }
+            });
+            
+            // Logout from All Devices
+            const logoutAllBtn = document.getElementById('logoutAllBtn');
+            
+            logoutAllBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to log out from all devices?')) {
+                    // Logout all API
+                    fetch('/api/auth/logout-all', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // Clear local storage and redirect to login
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('user');
+                            window.location.href = '/login?loggedout=true';
+                        } else {
+                            alert(result.message || 'Failed to log out from all devices.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred during the logout process.');
+                    });
+                }
+            });
+            
+            // Save Preferences
+            const savePreferencesBtn = document.getElementById('savePreferencesBtn');
+            
+            savePreferencesBtn.addEventListener('click', function() {
+                const emailNotifications = document.getElementById('emailNotifications').checked;
+                const smsNotifications = document.getElementById('smsNotifications').checked;
+                const marketingEmails = document.getElementById('marketingEmails').checked;
+                
+                // Save preferences API
+                fetch('/api/auth/preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        emailNotifications: emailNotifications,
+                        smsNotifications: smsNotifications,
+                        marketingEmails: marketingEmails
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('Preferences saved successfully!');
+                    } else {
+                        alert(result.message || 'Failed to save preferences.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while saving your preferences.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
