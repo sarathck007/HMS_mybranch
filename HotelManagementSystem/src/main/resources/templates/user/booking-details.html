@@ -1,10 +1,10 @@
 <!-- templates/user/booking-details.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/layout :: head('Booking Details')">
+<head th:replace="~{fragments/layout :: head('Booking Details')}">
 </head>
 <body>
-    <header th:replace="fragments/layout :: header-user"></header>
+    <header th:replace="~{fragments/layout :: header-user}"></header>
 
     <div class="container py-5">
         <div th:if="${booking != null}" class="mb-4">
@@ -57,10 +57,14 @@
                                         <tbody>
                                             <tr>
                                                 <td>Room Rate</td>
-                                                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(booking.totalPrice / 1.1, 1, 2) + ' × ' + 
+                                                <!-- <td class="text-end" th:text="${'$' + #numbers.formatDecimal(booking.totalPrice / 1.1, 1, 2) + ' × ' + 
                                                     #temporals.daysBetween(booking.checkInDate, booking.checkOutDate) + ' nights'}">
                                                     $200 × 5 nights
-                                                </td>
+                                                </td> -->
+                                                <td class="text-end">
+    <span th:text="${'$' + #numbers.formatDecimal(booking.totalPrice / 1.1, 1, 2)}">$200</span> × 
+    <span th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(booking.checkInDate, booking.checkOutDate)}">5</span> nights
+</td>
                                             </tr>
                                             <tr>
                                                 <td>Taxes & Fees (10%)</td>
@@ -184,6 +188,6 @@
         </div>
     </div>
 
-    <footer th:replace="fragments/layout :: footer"></footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

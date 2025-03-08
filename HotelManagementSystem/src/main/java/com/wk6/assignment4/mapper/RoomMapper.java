@@ -31,6 +31,9 @@ public class RoomMapper {
                 .features(room.getFeatures())
                 .maxAdults(room.getMaxAdults())
                 .maxChildren(room.getMaxChildren())
+             // Add these fields
+                .startDate(room.getStartDate())
+                .endDate(room.getEndDate())
                 .build();
     }
 

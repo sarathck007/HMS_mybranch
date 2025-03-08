@@ -2,15 +2,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="fragments/layout :: head('My Profile')">
+<head th:replace="~{fragments/layout :: head('My Profile')}">
+
 </head>
 <body>
     <!-- Different header based on role -->
     <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
-        <header th:replace="fragments/layout :: header-admin"></header>
+        <header th:replace="~{fragments/layout :: header-admin}"></header>
     </div>
     <div th:unless="${#authorization.expression('hasRole(''ADMIN'')')}">
-        <header th:replace="fragments/layout :: header-user"></header>
+    <header th:replace="~{fragments/layout :: header-user}"></header>
     </div>
     
     <div class="container py-5">
@@ -78,9 +79,13 @@
                                                         <th style="width: 30%">First Name</th>
                                                         <td th:text="${user.firstName}">John</td>
                                                     </tr>
-                                                    <tr th:if="${user.middleName != null}">
+                                                    <!-- <tr th:if="${user.middleName != null}">
                                                         <th>Middle Name</th>
                                                         <td th:text="${user.middleName}">David</td>
+                                                    </tr> -->
+                                                   <tr th:if="${#authorization.expression('hasRole(''ADMIN'')') and user.middleName != null}">
+                                                       <th>Middle Name</th>
+                                                       <td th:text="${user.middleName}">David</td>
                                                     </tr>
                                                     <tr>
                                                         <th>Last Name</th>
@@ -213,7 +218,7 @@
         </div>
     </div>
     
-    <footer th:replace="fragments/layout :: footer"></footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
     
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {

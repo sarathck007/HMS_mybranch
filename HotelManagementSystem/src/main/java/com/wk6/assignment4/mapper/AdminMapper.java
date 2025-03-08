@@ -17,6 +17,8 @@ public class AdminMapper {
                 .lastName(admin.getLastName())
                 .email(admin.getEmail())
                 .phone(admin.getPhone())
+                .createdAt(admin.getCreatedAt())  // Add this line
+                .updatedAt(admin.getUpdatedAt())  // Add this line
                 .build();
     }
 }

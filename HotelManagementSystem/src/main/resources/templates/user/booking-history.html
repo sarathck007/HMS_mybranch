@@ -1,10 +1,12 @@
 <!-- templates/user/booking-history.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/layout :: head('My Bookings')">
+<head th:replace="~{fragments/layout :: head('My Bookings')}">
+
 </head>
 <body>
-    <header th:replace="fragments/layout :: header-user"></header>
+        <header th:replace="~{fragments/layout :: header-user}"></header>
+    
 
     <div class="container py-5">
         <h1 class="mb-4">My Bookings</h1>
@@ -169,6 +171,6 @@
         </div>
     </div>
 
-    <footer th:replace="fragments/layout :: footer"></footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

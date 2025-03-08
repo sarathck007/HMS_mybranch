@@ -1,5 +1,7 @@
 package com.wk6.assignment4.dto.response;
 
+import java.time.LocalDateTime;
+
 public class AdminResponse {
     private String adminId;
     private String firstName;
@@ -22,6 +24,26 @@ public class AdminResponse {
         this.email = email;
         this.phone = phone;
         this.department = department;
+    }
+ // Add these fields to UserResponse class
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    // Add getters and setters
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     // Static builder method
@@ -117,7 +139,20 @@ public class AdminResponse {
             this.department = department;
             return this;
         }
+     // Add these fields
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
         
+        // Add builder methods
+        public AdminResponseBuilder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+        
+        public AdminResponseBuilder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
         public AdminResponse build() {
             AdminResponse response = new AdminResponse();
             response.setAdminId(this.adminId);
@@ -127,6 +162,8 @@ public class AdminResponse {
             response.setEmail(this.email);
             response.setPhone(this.phone);
             response.setDepartment(this.department);
+            response.setCreatedAt(this.createdAt);
+            response.setUpdatedAt(this.updatedAt);
             return response;
         }
     }

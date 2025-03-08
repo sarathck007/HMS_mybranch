@@ -2,13 +2,25 @@ package com.wk6.assignment4.dto.request;
 
 import java.time.LocalDateTime;
 
+import com.wk6.assignment4.validation.FutureDate;
+
 import jakarta.validation.constraints.*;
 
 public class BookingRequest {
 	@NotNull(message = "Room ID is required")
 	private String roomId;
 
-	@Future(message = "Check-in date must be in the future")
+	/*
+	 * @Future(message = "Check-in date must be in the future") private
+	 * LocalDateTime checkInDate;
+	 * 
+	 * @Future(message = "Check-out date must be in the future") private
+	 * LocalDateTime checkOutDate;
+	 */
+	
+	
+	//@FutureOrPresent(message = "Check-in date must be today or in the future")
+    @FutureDate(message = "Check-in date must be today or in the future")
 	private LocalDateTime checkInDate;
 
 	@Future(message = "Check-out date must be in the future")

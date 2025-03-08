@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.wk6.assignment4.model.BookingStatus;
 import com.wk6.assignment4.security.SecurityUtil;
+import com.wk6.assignment4.service.AdminService;
 import com.wk6.assignment4.service.BookingService;
 import com.wk6.assignment4.service.RoomService;
 import com.wk6.assignment4.service.UserService;
@@ -30,6 +31,8 @@ public class WebController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AdminService adminService;
     
     @Autowired
     private RoomService roomService;
@@ -164,11 +167,13 @@ public class WebController {
         return "user/booking-form";
     }
     
+   // @GetMapping("/user/bookings")
     @GetMapping("/user/bookings")
     public String userBookings(Model model) {
         String userId = securityUtil.getCurrentUserId();
         
         List<BookingResponse> allBookings = bookingService.findUserBookings(userId);
+        System.out.println("DEBUG - Total bookings found: " + allBookings.size());
         
         // Filter bookings by status
         List<BookingResponse> upcomingBookings = allBookings.stream()
@@ -176,6 +181,33 @@ public class WebController {
             .filter(b -> b.getCheckInDate().isAfter(LocalDateTime.now()))
             .collect(Collectors.toList());
         
+        System.out.println("DEBUG - Upcoming bookings after filter: " + upcomingBookings.size());
+        
+        // Debug each booking to see why it might be filtered out
+        for (BookingResponse booking : allBookings) {
+            boolean isNotCancelledOrCheckedOut = booking.getStatus() != BookingStatus.CANCELLED && 
+                                               booking.getStatus() != BookingStatus.CHECKED_OUT;
+            boolean isAfterNow = booking.getCheckInDate().isAfter(LocalDateTime.now());
+            boolean wouldBeIncluded = isNotCancelledOrCheckedOut && isAfterNow;
+            
+            System.out.println("DEBUG - Booking ID: " + booking.getBookingId() + 
+                              ", Status: " + booking.getStatus() + 
+                              ", Check-in: " + booking.getCheckInDate() + 
+                              ", Current time: " + LocalDateTime.now() + 
+                              ", Would be included: " + wouldBeIncluded + 
+                              ", Not cancelled/checked out: " + isNotCancelledOrCheckedOut + 
+                              ", Is after now: " + isAfterNow);
+        }
+        
+        // Modify this filter to include "today" bookings
+        List<BookingResponse> modifiedUpcomingBookings = allBookings.stream()
+            .filter(b -> b.getStatus() != BookingStatus.CANCELLED && b.getStatus() != BookingStatus.CHECKED_OUT)
+            .filter(b -> !b.getCheckInDate().toLocalDate().isBefore(LocalDateTime.now().toLocalDate()))
+            .collect(Collectors.toList());
+        
+        System.out.println("DEBUG - Modified upcoming bookings (including today): " + modifiedUpcomingBookings.size());
+        
+        // Use the modified list instead of the original
         List<BookingResponse> pastBookings = allBookings.stream()
             .filter(b -> b.getStatus() == BookingStatus.CHECKED_OUT || 
                    (b.getStatus() != BookingStatus.CANCELLED && 
@@ -186,7 +218,8 @@ public class WebController {
             .filter(b -> b.getStatus() == BookingStatus.CANCELLED)
             .collect(Collectors.toList());
         
-        model.addAttribute("upcomingBookings", upcomingBookings);
+        // Use the modified list for the model
+        model.addAttribute("upcomingBookings", modifiedUpcomingBookings);
         model.addAttribute("pastBookings", pastBookings);
         model.addAttribute("cancelledBookings", cancelledBookings);
         
@@ -216,9 +249,24 @@ public class WebController {
     
     @GetMapping("/user/profile")
     public String userProfile(Model model) {
-        String userId = securityUtil.getCurrentUserId();
-        model.addAttribute("user", userService.findById(userId));
-        return "user/profile";
+		
+		  String userId = securityUtil.getCurrentUserId(); model.addAttribute("user",
+		  userService.findById(userId)); return "user/profile";
+		 
+		/*
+		 * String userId = securityUtil.getCurrentUserId(); if (securityUtil.isAdmin())
+		 * { model.addAttribute("user", adminService.findById(userId)); } else {
+		 * model.addAttribute("user", userService.findById(userId)); } return
+		 * "user/profile";
+		 */
+    }
+    
+    @GetMapping("/admin/profile")
+    public String adminProfile(Model model) {
+        String adminId = securityUtil.getCurrentUserId();
+        // Use AdminService instead of UserService for admin profiles
+        model.addAttribute("user", adminService.findById(adminId));
+        return "user/profile"; // Both use the same template
     }
     
     // Admin pages
@@ -324,10 +372,9 @@ public class WebController {
         return "admin/reports";
     }
     
-    @GetMapping("/admin/profile")
-    public String adminProfile(Model model) {
-        String adminId = securityUtil.getCurrentUserId();
-        model.addAttribute("user", userService.findById(adminId));
-        return "admin/profile";
-    }
+	/*
+	 * @GetMapping("/admin/profile") public String adminProfile(Model model) {
+	 * String adminId = securityUtil.getCurrentUserId(); model.addAttribute("user",
+	 * userService.findById(adminId)); return "admin/profile"; }
+	 */
 }

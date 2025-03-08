@@ -80,9 +80,17 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.deleteById(roomId);
     }
 
+	/*
+	 * @Override public List<RoomResponse> findAvailableRooms(LocalDate checkIn,
+	 * LocalDate checkOut, int adults, int children) { return
+	 * roomRepository.findAvailableRooms(checkIn, checkOut, adults,
+	 * children).stream() .map(roomMapper::toResponse).collect(Collectors.toList());
+	 * }
+	 */
+    
     @Override
     public List<RoomResponse> findAvailableRooms(LocalDate checkIn, LocalDate checkOut, int adults, int children) {
-    	// Convert LocalDate to LocalDateTime for repository call
+        // Convert LocalDate to LocalDateTime for repository call
         LocalDateTime checkInDateTime = checkIn.atStartOfDay();
         LocalDateTime checkOutDateTime = checkOut.atStartOfDay();
         

@@ -1,6 +1,7 @@
 package com.wk6.assignment4.dto.response;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class RoomResponse {
     private String roomId;
@@ -12,6 +13,9 @@ public class RoomResponse {
     private int maxChildren;
     private boolean isAvailable;
     private String imageUrl;
+    // Add these fields as LocalDate (not LocalDateTime) to match the template expectations
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     // Default constructor
     public RoomResponse() {}
@@ -29,7 +33,22 @@ public class RoomResponse {
         this.isAvailable = isAvailable;
         this.imageUrl = imageUrl;
     }
-
+    // Add getters and setters for the new fields
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+    
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+    
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+    
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
     // Static builder method
     public static RoomResponseBuilder builder() {
         return new RoomResponseBuilder();
@@ -119,6 +138,18 @@ public class RoomResponse {
         private int maxChildren;
         private boolean isAvailable;
         private String imageUrl;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        
+        public RoomResponseBuilder startDate(LocalDate startDate) {
+            this.startDate = startDate;
+            return this;
+        }
+        
+        public RoomResponseBuilder endDate(LocalDate endDate) {
+            this.endDate = endDate;
+            return this;
+        }
         
         public RoomResponseBuilder roomId(String roomId) {
             this.roomId = roomId;
@@ -176,6 +207,9 @@ public class RoomResponse {
             response.setMaxChildren(this.maxChildren);
             response.setAvailable(this.isAvailable);
             response.setImageUrl(this.imageUrl);
+         // New field setters
+            response.setStartDate(this.startDate);
+            response.setEndDate(this.endDate);
             return response;
         }
     }

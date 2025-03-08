@@ -1,10 +1,11 @@
 <!-- templates/user/rooms.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/layout :: head('Find Rooms')">
+<head th:replace="~{fragments/layout :: head('Find Rooms')}">
+
 </head>
 <body>
-    <header th:replace="fragments/layout :: header-user"></header>
+    <header th:replace="~{fragments/layout :: header-user}"></header>
 
     <div class="container py-5">
         <h1 class="mb-4">Find Your Perfect Room</h1>
@@ -168,7 +169,7 @@
         </div>
     </div>
 
-    <footer th:replace="fragments/layout :: footer"></footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {

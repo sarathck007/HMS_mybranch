@@ -12,9 +12,12 @@ public class UserMapper {
         return UserResponse.builder()
                 .userId(user.getUserId())
                 .firstName(user.getFirstName())
+                .middleName(null)  // Add this line, even though User doesn't have middleName
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .createdAt(user.getCreatedAt())  // Add this line
+                .updatedAt(user.getUpdatedAt())  // Add this line
                 .build();
     }
 }
